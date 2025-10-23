@@ -118,8 +118,8 @@ def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipit
     if 'clear' in weather_condition.lower() or 'sun' in weather_condition.lower():
         recommendations.append("Wear sunscreen")
 
-    # Wind-specific recommendations
-    if wind_speed_kmh > 15:
+    # Wind-specific recommendations (only for cooler temperatures)
+    if wind_speed_kmh > 15 and temp_high < 18:
         recommendations.append("Wear a hat (windy conditions)")
 
     if temp_high - temp_low > 20:
