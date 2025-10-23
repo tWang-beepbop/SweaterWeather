@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 
 
 def get_weather_forecast(api_key, latitude, longitude):
@@ -123,9 +124,34 @@ def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipit
     return recommendations
 
 
+def get_weather_icon_path(weather_condition):
+    """
+    Determine which weather icon to use based on conditions
+    """
+    weather_lower = weather_condition.lower()
+
+    # Get the script directory to build absolute paths
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    if 'rain' in weather_lower or 'drizzle' in weather_lower or 'thunderstorm' in weather_lower:
+        return os.path.join(script_dir, 'rainy cloud.png')
+    elif 'cloud' in weather_lower:
+        # Check if it's partly cloudy
+        if 'few' in weather_lower or 'scattered' in weather_lower or 'partly' in weather_lower:
+            return os.path.join(script_dir, 'partly sunny.png')
+        else:
+            return os.path.join(script_dir, 'cloudy.png')
+    elif 'clear' in weather_lower or 'sun' in weather_lower:
+        return os.path.join(script_dir, 'sun.png')
+    else:
+        # Default to partly sunny for unknown conditions
+        return os.path.join(script_dir, 'partly sunny.png')
+
+
 def create_email_body(weather_data):
     """
     Create formatted email body with weather info and clothing recommendations
+    Returns tuple of (text_body, html_body, icon_path)
     """
     today = weather_data['daily'][0]
     current = weather_data['current']
@@ -144,8 +170,11 @@ def create_email_body(weather_data):
     # Get clothing recommendations
     recommendations = get_clothing_recommendation(temp_high, temp_low, weather_main, precipitation_prob, wind_speed_kmh)
 
-    # Build email body
-    email_body = f"""Good morning!
+    # Get weather icon
+    icon_path = get_weather_icon_path(weather_desc)
+
+    # Build text email body (fallback)
+    text_body = f"""Good morning!
 
 Here's your weather forecast and clothing recommendations for today:
 
@@ -164,9 +193,9 @@ WHAT TO WEAR TODAY
 """
 
     for i, rec in enumerate(recommendations, 1):
-        email_body += f"{i}. {rec}\n"
+        text_body += f"{i}. {rec}\n"
 
-    email_body += f"""
+    text_body += f"""
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Have a great day!
@@ -175,19 +204,96 @@ Have a great day!
 Generated on {datetime.now().strftime('%Y-%m-%d at %I:%M %p')}
 """
 
-    return email_body
+    # Build HTML email body (with image)
+    recommendations_html = "".join([f"<li>{rec}</li>" for rec in recommendations])
+
+    html_body = f"""
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+            .weather-icon {{ text-align: center; margin: 20px 0; }}
+            .weather-icon img {{ max-width: 200px; height: auto; }}
+            .weather-summary {{ background-color: #f4f4f4; padding: 15px; border-radius: 5px; margin: 20px 0; }}
+            .weather-summary h2 {{ margin-top: 0; color: #2c3e50; }}
+            .weather-detail {{ margin: 10px 0; }}
+            .recommendations {{ background-color: #e8f4f8; padding: 15px; border-radius: 5px; }}
+            .recommendations h2 {{ margin-top: 0; color: #2c3e50; }}
+            ul {{ padding-left: 20px; }}
+            li {{ margin: 8px 0; }}
+            .footer {{ margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 0.9em; color: #666; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Good morning!</h1>
+            <p>Here's your weather forecast and clothing recommendations for today:</p>
+
+            <div class="weather-icon">
+                <img src="cid:weather_icon" alt="Weather Icon">
+            </div>
+
+            <div class="weather-summary">
+                <h2>Weather Summary</h2>
+                <div class="weather-detail"><strong>Current:</strong> {current_temp}°C (feels like {feels_like}°C)</div>
+                <div class="weather-detail"><strong>High:</strong> {temp_high}°C</div>
+                <div class="weather-detail"><strong>Low:</strong> {temp_low}°C</div>
+                <div class="weather-detail"><strong>Conditions:</strong> {weather_desc}</div>
+                <div class="weather-detail"><strong>Precipitation chance:</strong> {precipitation_prob}%</div>
+                <div class="weather-detail"><strong>Humidity:</strong> {humidity}%</div>
+                <div class="weather-detail"><strong>Wind speed:</strong> {wind_speed_kmh} km/h</div>
+            </div>
+
+            <div class="recommendations">
+                <h2>What to Wear Today</h2>
+                <ul>
+                    {recommendations_html}
+                </ul>
+            </div>
+
+            <p><strong>Have a great day!</strong></p>
+
+            <div class="footer">
+                Generated on {datetime.now().strftime('%Y-%m-%d at %I:%M %p')}
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return text_body, html_body, icon_path
 
 
-def send_email(sender_email, sender_password, recipient_email, subject, body, smtp_server, smtp_port):
+def send_email(sender_email, sender_password, recipient_email, subject, text_body, html_body, icon_path, smtp_server, smtp_port):
     """
-    Send email using SMTP
+    Send email using SMTP with both text and HTML parts and embedded image
     """
-    message = MIMEMultipart()
+    message = MIMEMultipart('related')
     message['From'] = sender_email
     message['To'] = recipient_email
     message['Subject'] = subject
 
-    message.attach(MIMEText(body, 'plain'))
+    # Create alternative part for text and HTML
+    msg_alternative = MIMEMultipart('alternative')
+    message.attach(msg_alternative)
+
+    # Attach text and HTML parts
+    msg_alternative.attach(MIMEText(text_body, 'plain'))
+    msg_alternative.attach(MIMEText(html_body, 'html'))
+
+    # Attach the weather icon image
+    try:
+        with open(icon_path, 'rb') as img_file:
+            img_data = img_file.read()
+            img = MIMEImage(img_data)
+            img.add_header('Content-ID', '<weather_icon>')
+            img.add_header('Content-Disposition', 'inline', filename=os.path.basename(icon_path))
+            message.attach(img)
+    except FileNotFoundError:
+        print(f"Warning: Weather icon not found at {icon_path}. Email will be sent without icon.")
+    except Exception as e:
+        print(f"Warning: Could not attach weather icon: {e}. Email will be sent without icon.")
 
     server = None
     try:
@@ -256,11 +362,11 @@ def main():
     weather_data = get_weather_forecast(api_key, latitude, longitude)
 
     # Create email content
-    email_body = create_email_body(weather_data)
+    text_body, html_body, icon_path = create_email_body(weather_data)
     subject = f"Your Daily Weather & Outfit Guide - {datetime.now().strftime('%B %d, %Y')}"
 
     # Send email
-    send_email(sender_email, sender_password, recipient_email, subject, email_body, smtp_server, smtp_port)
+    send_email(sender_email, sender_password, recipient_email, subject, text_body, html_body, icon_path, smtp_server, smtp_port)
 
 
 if __name__ == "__main__":
