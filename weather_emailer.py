@@ -177,6 +177,10 @@ def create_email_body(weather_data):
     # Get weather icon
     icon_path = get_weather_icon_path(weather_desc)
 
+    # Check if we need windy icon
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    windy_icon_path = os.path.join(script_dir, 'windy.png') if wind_speed_kmh > 20 else None
+
     # Build text email body (fallback)
     text_body = f"""Good morning!
 
@@ -236,6 +240,7 @@ Generated on {datetime.now().strftime('%Y-%m-%d at %I:%M %p')}
 
             <div class="weather-icon">
                 <img src="cid:weather_icon" alt="Weather Icon">
+                {"<img src='cid:windy_icon' alt='Windy' style='margin-left: 10px;'>" if wind_speed_kmh > 20 else ""}
             </div>
 
             <div class="weather-summary">
@@ -266,12 +271,12 @@ Generated on {datetime.now().strftime('%Y-%m-%d at %I:%M %p')}
     </html>
     """
 
-    return text_body, html_body, icon_path
+    return text_body, html_body, icon_path, windy_icon_path
 
 
-def send_email(sender_email, sender_password, recipient_email, subject, text_body, html_body, icon_path, smtp_server, smtp_port):
+def send_email(sender_email, sender_password, recipient_email, subject, text_body, html_body, icon_path, windy_icon_path, smtp_server, smtp_port):
     """
-    Send email using SMTP with both text and HTML parts and embedded image
+    Send email using SMTP with both text and HTML parts and embedded images
     """
     message = MIMEMultipart('related')
     message['From'] = sender_email
@@ -298,6 +303,20 @@ def send_email(sender_email, sender_password, recipient_email, subject, text_bod
         print(f"Warning: Weather icon not found at {icon_path}. Email will be sent without icon.")
     except Exception as e:
         print(f"Warning: Could not attach weather icon: {e}. Email will be sent without icon.")
+
+    # Attach the windy icon if wind speed is high
+    if windy_icon_path:
+        try:
+            with open(windy_icon_path, 'rb') as img_file:
+                img_data = img_file.read()
+                img = MIMEImage(img_data)
+                img.add_header('Content-ID', '<windy_icon>')
+                img.add_header('Content-Disposition', 'inline', filename=os.path.basename(windy_icon_path))
+                message.attach(img)
+        except FileNotFoundError:
+            print(f"Warning: Windy icon not found at {windy_icon_path}. Email will be sent without windy icon.")
+        except Exception as e:
+            print(f"Warning: Could not attach windy icon: {e}. Email will be sent without windy icon.")
 
     server = None
     try:
@@ -366,11 +385,11 @@ def main():
     weather_data = get_weather_forecast(api_key, latitude, longitude)
 
     # Create email content
-    text_body, html_body, icon_path = create_email_body(weather_data)
+    text_body, html_body, icon_path, windy_icon_path = create_email_body(weather_data)
     subject = f"Your Daily Weather & Outfit Guide - {datetime.now().strftime('%B %d, %Y')}"
 
     # Send email
-    send_email(sender_email, sender_password, recipient_email, subject, text_body, html_body, icon_path, smtp_server, smtp_port)
+    send_email(sender_email, sender_password, recipient_email, subject, text_body, html_body, icon_path, windy_icon_path, smtp_server, smtp_port)
 
 
 if __name__ == "__main__":
