@@ -170,6 +170,9 @@ def main():
         print("Error: SENDER_EMAIL and SENDER_PASSWORD environment variables are required")
         sys.exit(1)
 
+    # Debug: Show API key length and first/last few characters (for troubleshooting)
+    print(f"API Key length: {len(api_key)}")
+    print(f"API Key format check: {api_key[:4]}...{api_key[-4:]}")
     print(f"Fetching weather for coordinates: {latitude}, {longitude}")
 
     # Get weather data
