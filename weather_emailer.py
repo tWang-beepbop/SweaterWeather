@@ -231,17 +231,18 @@ Generated on {datetime.now().strftime('%Y-%m-%d at %I:%M %p')}
     <head>
         <style>
             body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-            .weather-icon {{ text-align: center; margin: 20px 0; }}
-            .weather-icon img {{ max-width: 200px; height: auto; }}
-            .weather-summary {{ background-color: #f4f4f4; padding: 15px; border-radius: 5px; margin: 20px 0; }}
+            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; }}
+            .weather-icon {{ text-align: center; margin: 20px auto; display: block; }}
+            .weather-icon img {{ max-width: 200px; height: auto; display: inline-block; vertical-align: middle; }}
+            .weather-summary {{ background-color: #f4f4f4; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: left; }}
             .weather-summary h2 {{ margin-top: 0; color: #2c3e50; }}
             .weather-detail {{ margin: 10px 0; }}
-            .recommendations {{ background-color: #e8f4f8; padding: 15px; border-radius: 5px; }}
+            .recommendations {{ background-color: #e8f4f8; padding: 15px; border-radius: 5px; text-align: left; }}
             .recommendations h2 {{ margin-top: 0; color: #2c3e50; }}
             ul {{ padding-left: 20px; }}
             li {{ margin: 8px 0; }}
-            .footer {{ margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 0.9em; color: #666; }}
+            .footer {{ margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 0.9em; color: #666; text-align: center; }}
+            h1, p {{ text-align: center; }}
         </style>
     </head>
     <body>
