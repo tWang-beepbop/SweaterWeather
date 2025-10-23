@@ -171,20 +171,40 @@ def send_email(sender_email, sender_password, recipient_email, subject, body, sm
 
     message.attach(MIMEText(body, 'plain'))
 
+    server = None
     try:
         # Connect to SMTP server
-        server = smtplib.SMTP(smtp_server, smtp_port)
+        print(f"Connecting to {smtp_server}:{smtp_port}...")
+        server = smtplib.SMTP(smtp_server, smtp_port, timeout=30)
+        server.ehlo()
+        print("Starting TLS...")
         server.starttls()
+        server.ehlo()
+        print("Logging in...")
         server.login(sender_email, sender_password)
 
         # Send email
+        print("Sending email...")
         server.send_message(message)
-        server.quit()
-
         print(f"Email sent successfully to {recipient_email}")
+
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"Authentication failed: {e}")
+        print("Check your email and password/app password are correct")
+        sys.exit(1)
+    except smtplib.SMTPException as e:
+        print(f"SMTP error: {e}")
+        sys.exit(1)
     except Exception as e:
         print(f"Error sending email: {e}")
+        print(f"Error type: {type(e).__name__}")
         sys.exit(1)
+    finally:
+        if server:
+            try:
+                server.quit()
+            except:
+                pass
 
 
 def main():
