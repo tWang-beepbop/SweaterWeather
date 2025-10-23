@@ -9,23 +9,61 @@ from email.mime.multipart import MIMEMultipart
 
 def get_weather_forecast(api_key, latitude, longitude):
     """
-    Fetch weather forecast from OpenWeather One Call API 2.5 (Free tier)
+    Fetch weather forecast using free Current Weather + 5 Day Forecast APIs
     """
-    url = f"https://api.openweathermap.org/data/2.5/onecall"
-    params = {
+    # Get current weather
+    current_url = f"https://api.openweathermap.org/data/2.5/weather"
+    current_params = {
         'lat': latitude,
         'lon': longitude,
         'appid': api_key,
-        'units': 'imperial',  # Use Fahrenheit
-        'exclude': 'minutely,hourly,alerts'
+        'units': 'imperial'
+    }
+
+    # Get 5-day forecast
+    forecast_url = f"https://api.openweathermap.org/data/2.5/forecast"
+    forecast_params = {
+        'lat': latitude,
+        'lon': longitude,
+        'appid': api_key,
+        'units': 'imperial'
     }
 
     try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
+        # Fetch current weather
+        current_response = requests.get(current_url, params=current_params)
+        current_response.raise_for_status()
+        current_data = current_response.json()
+
+        # Fetch forecast
+        forecast_response = requests.get(forecast_url, params=forecast_params)
+        forecast_response.raise_for_status()
+        forecast_data = forecast_response.json()
+
+        # Transform into format similar to One Call API for compatibility
+        return {
+            'current': {
+                'temp': current_data['main']['temp'],
+                'feels_like': current_data['main']['feels_like'],
+                'humidity': current_data['main']['humidity'],
+                'wind_speed': current_data['wind']['speed']
+            },
+            'daily': [{
+                'temp': {
+                    'min': current_data['main']['temp_min'],
+                    'max': current_data['main']['temp_max']
+                },
+                'weather': current_data['weather'],
+                'pop': forecast_data['list'][0].get('pop', 0) if forecast_data['list'] else 0,
+                'humidity': current_data['main']['humidity'],
+                'wind_speed': current_data['wind']['speed']
+            }]
+        }
     except requests.exceptions.RequestException as e:
         print(f"Error fetching weather data: {e}")
+        if hasattr(e, 'response') and e.response is not None:
+            print(f"Response status: {e.response.status_code}")
+            print(f"Response body: {e.response.text}")
         sys.exit(1)
 
 
