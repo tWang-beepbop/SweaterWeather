@@ -160,7 +160,7 @@ def main():
     recipient_email = os.getenv('RECIPIENT_EMAIL', sender_email)  # Default to sender
 
     smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')  # Default: Gmail
-    smtp_port = int(os.getenv('SMTP_PORT', '587'))
+    smtp_port = int(os.getenv('SMTP_PORT') or '587')
 
     # Validate required environment variables
     if not api_key:
