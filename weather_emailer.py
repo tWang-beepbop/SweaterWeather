@@ -150,17 +150,17 @@ def send_email(sender_email, sender_password, recipient_email, subject, body, sm
 
 
 def main():
-    # Get configuration from environment variables
-    api_key = os.getenv('OPENWEATHER_API_KEY')
-    latitude = os.getenv('LATITUDE', '40.7128')  # Default: NYC
-    longitude = os.getenv('LONGITUDE', '-74.0060')  # Default: NYC
+    # Get configuration from environment variables (strip whitespace)
+    api_key = os.getenv('OPENWEATHER_API_KEY', '').strip()
+    latitude = os.getenv('LATITUDE', '40.7128').strip()
+    longitude = os.getenv('LONGITUDE', '-74.0060').strip()
 
-    sender_email = os.getenv('SENDER_EMAIL')
-    sender_password = os.getenv('SENDER_PASSWORD')
-    recipient_email = os.getenv('RECIPIENT_EMAIL', sender_email)  # Default to sender
+    sender_email = os.getenv('SENDER_EMAIL', '').strip()
+    sender_password = os.getenv('SENDER_PASSWORD', '').strip()
+    recipient_email = os.getenv('RECIPIENT_EMAIL', sender_email).strip() if os.getenv('RECIPIENT_EMAIL') else sender_email
 
-    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')  # Default: Gmail
-    smtp_port = int(os.getenv('SMTP_PORT') or '587')
+    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com').strip()
+    smtp_port = int((os.getenv('SMTP_PORT') or '587').strip())
 
     # Validate required environment variables
     if not api_key:
