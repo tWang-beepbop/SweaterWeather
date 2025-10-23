@@ -97,6 +97,9 @@ def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipit
     if temp_high < 2:
         recommendations.append("Wear wool socks")
 
+    if temp_high < 5:
+        recommendations.append("Wear a toque and scarf")
+
     # Additional recommendations based on conditions
     if temp_low < 4:
         recommendations.append("Bring extra layers for cold mornings/evenings")
