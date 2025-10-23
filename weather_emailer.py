@@ -114,6 +114,10 @@ def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipit
     if 'snow' in weather_condition.lower():
         recommendations.append("Winter boots and warm accessories (hat, gloves)")
 
+    # Sunny day recommendations
+    if 'clear' in weather_condition.lower() or 'sun' in weather_condition.lower():
+        recommendations.append("Wear sunscreen")
+
     # Wind-specific recommendations
     if wind_speed_kmh > 15:
         recommendations.append("Wear a hat (windy conditions)")
