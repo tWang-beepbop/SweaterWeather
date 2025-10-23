@@ -4,7 +4,7 @@ Automatically receive a daily email at 7 AM with weather forecasts and clothing 
 
 ## Features
 
-- Fetches weather data from OpenWeather One Call API 3.0
+- Fetches weather data from OpenWeather One Call API 2.5 (Free tier)
 - Provides intelligent clothing recommendations based on temperature, precipitation, and weather conditions
 - Sends formatted email via your personal email account (Gmail, Outlook, etc.)
 - Runs automatically via GitHub Actions every day at 7 AM
@@ -15,8 +15,8 @@ Automatically receive a daily email at 7 AM with weather forecasts and clothing 
 ### 1. Get an OpenWeather API Key
 
 1. Sign up at [OpenWeather](https://openweathermap.org/)
-2. Subscribe to the [One Call API 3.0](https://openweathermap.org/api/one-call-3) plan
-3. Copy your API key from your account dashboard
+2. Go to your account dashboard and copy your API key
+3. The free tier includes 1,000 API calls per day, which is more than enough for daily emails
 
 ### 2. Get Your Location Coordinates
 

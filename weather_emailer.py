@@ -9,9 +9,9 @@ from email.mime.multipart import MIMEMultipart
 
 def get_weather_forecast(api_key, latitude, longitude):
     """
-    Fetch weather forecast from OpenWeather One Call API 3.0
+    Fetch weather forecast from OpenWeather One Call API 2.5 (Free tier)
     """
-    url = f"https://api.openweathermap.org/data/3.0/onecall"
+    url = f"https://api.openweathermap.org/data/2.5/onecall"
     params = {
         'lat': latitude,
         'lon': longitude,
