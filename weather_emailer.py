@@ -217,7 +217,8 @@ def main():
     sender_password = os.getenv('SENDER_PASSWORD', '').strip()
     recipient_email = os.getenv('RECIPIENT_EMAIL', sender_email).strip() if os.getenv('RECIPIENT_EMAIL') else sender_email
 
-    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com').strip()
+    # Use 'or' to handle empty strings for SMTP settings
+    smtp_server = (os.getenv('SMTP_SERVER') or 'smtp.gmail.com').strip()
     smtp_port = int((os.getenv('SMTP_PORT') or '587').strip())
 
     # Validate required environment variables
