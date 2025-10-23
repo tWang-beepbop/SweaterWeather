@@ -74,19 +74,30 @@ def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipit
     recommendations = []
 
     # Temperature-based recommendations (Celsius)
-    if temp_high >= 24:  # 75°F
+    if temp_high >= 24:
         recommendations.append("Light clothing (t-shirt, shorts/skirt)")
-    elif temp_high >= 18:  # 65°F
+        recommendations.append("Wear light breathable clothing")
+    elif temp_high >= 18:
         recommendations.append("Light layers (t-shirt with light jacket)")
-    elif temp_high >= 10:  # 50°F
+    elif temp_high >= 10:
         recommendations.append("Medium layers (long sleeves, sweater or light jacket)")
-    elif temp_high >= 4:  # 40°F
+    elif temp_high >= 4:
         recommendations.append("Warm layers (sweater, jacket)")
     else:
         recommendations.append("Heavy winter clothing (coat, warm layers)")
 
+    # Specific temperature-based clothing reminders
+    if 10 <= temp_high <= 14:
+        recommendations.append("Wear your white heat tech shirt")
+
+    if temp_high <= 9:
+        recommendations.append("Layer your black heat tech shirt with grey merino wool shirt")
+
+    if temp_high < 2:
+        recommendations.append("Wear wool socks")
+
     # Additional recommendations based on conditions
-    if temp_low < 4:  # 40°F
+    if temp_low < 4:
         recommendations.append("Bring extra layers for cold mornings/evenings")
 
     # Rain-specific recommendations
