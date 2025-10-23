@@ -123,7 +123,7 @@ def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipit
 
     # Wind-specific recommendations (only for cooler temperatures, but not if toque already recommended)
     if wind_speed_kmh > 15 and temp_high < 18 and temp_high >= 5:
-        recommendations.append("Wear a hat (windy conditions)")
+        recommendations.append("Wear a toque (windy conditions)")
 
     if temp_high - temp_low > 20:
         recommendations.append("Temperature varies significantly - dress in layers")
