@@ -67,7 +67,7 @@ def get_weather_forecast(api_key, latitude, longitude):
         sys.exit(1)
 
 
-def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipitation_prob):
+def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipitation_prob, wind_speed_kmh):
     """
     Generate clothing recommendations based on weather conditions (Celsius)
     """
@@ -89,16 +89,22 @@ def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipit
     if temp_low < 4:  # 40°F
         recommendations.append("Bring extra layers for cold mornings/evenings")
 
-    if precipitation_prob > 50:
+    # Rain-specific recommendations
+    if 'rain' in weather_condition.lower() or 'drizzle' in weather_condition.lower():
+        recommendations.append("Bring an umbrella")
+        recommendations.append("Wear a waterproof jacket")
+        recommendations.append("Wear waterproof boots")
+    elif precipitation_prob > 50:
         recommendations.append("Bring an umbrella or rain jacket")
     elif precipitation_prob > 30:
         recommendations.append("Consider bringing an umbrella")
 
-    if 'rain' in weather_condition.lower() or 'drizzle' in weather_condition.lower():
-        recommendations.append("Waterproof shoes recommended")
-
     if 'snow' in weather_condition.lower():
         recommendations.append("Winter boots and warm accessories (hat, gloves)")
+
+    # Wind-specific recommendations
+    if wind_speed_kmh > 15:
+        recommendations.append("Wear a hat (windy conditions)")
 
     if temp_high - temp_low > 20:
         recommendations.append("Temperature varies significantly - dress in layers")
@@ -125,7 +131,7 @@ def create_email_body(weather_data):
     wind_speed_kmh = round(wind_speed_ms * 3.6)  # Convert m/s to km/h
 
     # Get clothing recommendations
-    recommendations = get_clothing_recommendation(temp_high, temp_low, weather_main, precipitation_prob)
+    recommendations = get_clothing_recommendation(temp_high, temp_low, weather_main, precipitation_prob, wind_speed_kmh)
 
     # Build email body
     email_body = f"""Good morning!
