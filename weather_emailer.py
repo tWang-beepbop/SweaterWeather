@@ -134,13 +134,19 @@ def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipit
 def get_weather_icon_path(weather_condition):
     """
     Determine which weather icon to use based on conditions
+    Priority: thunderstorm > snow > rain > clouds > clear
     """
     weather_lower = weather_condition.lower()
 
     # Get the script directory to build absolute paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
-    if 'rain' in weather_lower or 'drizzle' in weather_lower or 'thunderstorm' in weather_lower:
+    # Check for severe weather first (highest priority)
+    if 'thunderstorm' in weather_lower or 'thunder' in weather_lower:
+        return os.path.join(script_dir, 'thunder.png')
+    elif 'snow' in weather_lower or 'sleet' in weather_lower or 'flurr' in weather_lower:
+        return os.path.join(script_dir, 'snow.png')
+    elif 'rain' in weather_lower or 'drizzle' in weather_lower:
         return os.path.join(script_dir, 'rainy cloud.png')
     elif 'cloud' in weather_lower:
         # Check if it's partly cloudy
