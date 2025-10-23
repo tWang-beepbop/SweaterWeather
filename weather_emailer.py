@@ -17,7 +17,7 @@ def get_weather_forecast(api_key, latitude, longitude):
         'lat': latitude,
         'lon': longitude,
         'appid': api_key,
-        'units': 'imperial'
+        'units': 'metric'  # Use Celsius
     }
 
     # Get 5-day forecast
@@ -26,7 +26,7 @@ def get_weather_forecast(api_key, latitude, longitude):
         'lat': latitude,
         'lon': longitude,
         'appid': api_key,
-        'units': 'imperial'
+        'units': 'metric'  # Use Celsius
     }
 
     try:
@@ -69,24 +69,24 @@ def get_weather_forecast(api_key, latitude, longitude):
 
 def get_clothing_recommendation(temp_high, temp_low, weather_condition, precipitation_prob):
     """
-    Generate clothing recommendations based on weather conditions
+    Generate clothing recommendations based on weather conditions (Celsius)
     """
     recommendations = []
 
-    # Temperature-based recommendations
-    if temp_high >= 75:
+    # Temperature-based recommendations (Celsius)
+    if temp_high >= 24:  # 75°F
         recommendations.append("Light clothing (t-shirt, shorts/skirt)")
-    elif temp_high >= 65:
+    elif temp_high >= 18:  # 65°F
         recommendations.append("Light layers (t-shirt with light jacket)")
-    elif temp_high >= 50:
+    elif temp_high >= 10:  # 50°F
         recommendations.append("Medium layers (long sleeves, sweater or light jacket)")
-    elif temp_high >= 40:
+    elif temp_high >= 4:  # 40°F
         recommendations.append("Warm layers (sweater, jacket)")
     else:
         recommendations.append("Heavy winter clothing (coat, warm layers)")
 
     # Additional recommendations based on conditions
-    if temp_low < 40:
+    if temp_low < 4:  # 40°F
         recommendations.append("Bring extra layers for cold mornings/evenings")
 
     if precipitation_prob > 50:
@@ -121,7 +121,8 @@ def create_email_body(weather_data):
     weather_desc = today['weather'][0]['description'].capitalize()
     precipitation_prob = round(today.get('pop', 0) * 100)
     humidity = today.get('humidity', current.get('humidity', 0))
-    wind_speed = round(today.get('wind_speed', current.get('wind_speed', 0)))
+    wind_speed_ms = today.get('wind_speed', current.get('wind_speed', 0))
+    wind_speed_kmh = round(wind_speed_ms * 3.6)  # Convert m/s to km/h
 
     # Get clothing recommendations
     recommendations = get_clothing_recommendation(temp_high, temp_low, weather_main, precipitation_prob)
@@ -133,13 +134,13 @@ Here's your weather forecast and clothing recommendations for today:
 
 WEATHER SUMMARY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Current: {current_temp}°F (feels like {feels_like}°F)
-High: {temp_high}°F
-Low: {temp_low}°F
+Current: {current_temp}°C (feels like {feels_like}°C)
+High: {temp_high}°C
+Low: {temp_low}°C
 Conditions: {weather_desc}
 Precipitation chance: {precipitation_prob}%
 Humidity: {humidity}%
-Wind speed: {wind_speed} mph
+Wind speed: {wind_speed_kmh} km/h
 
 WHAT TO WEAR TODAY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
