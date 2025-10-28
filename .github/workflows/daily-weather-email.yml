@@ -2,10 +2,13 @@ name: Daily Weather Email
 
 on:
   schedule:
-    # Run every day at 7:00 AM UTC (adjust timezone as needed)
+    # Run every day at 7:00 AM EST/EDT (Eastern Time)
     # Cron format: minute hour day month day-of-week
-    # For 7 AM EST (noon UTC), use: '0 12 * * *'
-    # For 7 AM PST (3 PM UTC), use: '0 15 * * *'
+    # GitHub Actions uses UTC time:
+    # - 7 AM EST (winter): 12:00 UTC (EST = UTC-5)
+    # - 7 AM EDT (summer): 11:00 UTC (EDT = UTC-4)
+    # Using 12:00 UTC for consistent 7 AM EST during winter months
+    # Note: Will run at 8 AM during EDT (summer). Adjust to '0 11 * * *' for year-round 7 AM EDT
     - cron: '0 12 * * *'
 
   # Allow manual trigger for testing
